@@ -37,43 +37,112 @@
 <span class="sourceLineNo">029</span>import com.nexmo.client.sms.messages.Message;<a name="line.29"></a>
 <span class="sourceLineNo">030</span><a name="line.30"></a>
 <span class="sourceLineNo">031</span>import java.io.IOException;<a name="line.31"></a>
-<span class="sourceLineNo">032</span><a name="line.32"></a>
-<span class="sourceLineNo">033</span><a name="line.33"></a>
-<span class="sourceLineNo">034</span> /**<a name="line.34"></a>
-<span class="sourceLineNo">035</span> * A client for talking to the Nexmo Voice API. The standard way to obtain an instance of this class is to use<a name="line.35"></a>
-<span class="sourceLineNo">036</span> * {@link NexmoClient#getSmsClient()}.<a name="line.36"></a>
-<span class="sourceLineNo">037</span> */<a name="line.37"></a>
-<span class="sourceLineNo">038</span>public class SmsClient {<a name="line.38"></a>
-<span class="sourceLineNo">039</span>    private SendMessageEndpoint message;<a name="line.39"></a>
-<span class="sourceLineNo">040</span><a name="line.40"></a>
-<span class="sourceLineNo">041</span>    /**<a name="line.41"></a>
-<span class="sourceLineNo">042</span>     * Create a new SmsClient.<a name="line.42"></a>
-<span class="sourceLineNo">043</span>     */<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    public SmsClient(HttpWrapper httpWrapper) {<a name="line.44"></a>
-<span class="sourceLineNo">045</span>        this.message = new SendMessageEndpoint(httpWrapper);<a name="line.45"></a>
-<span class="sourceLineNo">046</span>    }<a name="line.46"></a>
-<span class="sourceLineNo">047</span><a name="line.47"></a>
-<span class="sourceLineNo">048</span>    /**<a name="line.48"></a>
-<span class="sourceLineNo">049</span>     * Send an SMS message.<a name="line.49"></a>
-<span class="sourceLineNo">050</span>     * &lt;p&gt;<a name="line.50"></a>
-<span class="sourceLineNo">051</span>     * This uses the supplied object to construct a request and post it to the Nexmo API.&lt;br&gt;<a name="line.51"></a>
-<span class="sourceLineNo">052</span>     * This method will respond with an array of SmsSubmissionResult objects. Depending on the nature and length of the submitted message, Nexmo may automatically<a name="line.52"></a>
-<span class="sourceLineNo">053</span>     * split the message into multiple sms messages in order to deliver to the handset. For example, a long text sms of greater than 160 chars will need to be split<a name="line.53"></a>
-<span class="sourceLineNo">054</span>     * into multiple 'concatenated' sms messages. The Nexmo service will handle this automatically for you.&lt;br&gt;<a name="line.54"></a>
-<span class="sourceLineNo">055</span>     * The array of SmsSubmissionResult objects will contain a SmsSubmissionResult object for every actual sms that was required to submit the message.<a name="line.55"></a>
-<span class="sourceLineNo">056</span>     * each message can potentially have a different status result, and each message will have a different message id.<a name="line.56"></a>
-<span class="sourceLineNo">057</span>     * Delivery notifications will be generated for each sms message within this set and will be posted to your application containing the appropriate message id.<a name="line.57"></a>
-<span class="sourceLineNo">058</span>     *<a name="line.58"></a>
-<span class="sourceLineNo">059</span>     * @param message The message request object that describes the type of message and the contents to be submitted.<a name="line.59"></a>
-<span class="sourceLineNo">060</span>     * @return SmsSubmissionResult[] an array of results, 1 object for each sms message that was required to submit this message in its entirety<a name="line.60"></a>
-<span class="sourceLineNo">061</span>     * @throws NexmoResponseParseException if the HTTP response could not be parsed.<a name="line.61"></a>
-<span class="sourceLineNo">062</span>     * @throws IOException                 There has been an error attempting to communicate with the Nexmo service (e.g. Network failure).<a name="line.62"></a>
-<span class="sourceLineNo">063</span>     */<a name="line.63"></a>
-<span class="sourceLineNo">064</span>    public SmsSubmissionResult[] submitMessage(Message message) throws IOException, NexmoClientException {<a name="line.64"></a>
-<span class="sourceLineNo">065</span>        return this.message.execute(message);<a name="line.65"></a>
-<span class="sourceLineNo">066</span>    }<a name="line.66"></a>
-<span class="sourceLineNo">067</span><a name="line.67"></a>
-<span class="sourceLineNo">068</span>}<a name="line.68"></a>
+<span class="sourceLineNo">032</span>import java.util.ArrayList;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import java.util.Arrays;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import java.util.Date;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import java.util.List;<a name="line.35"></a>
+<span class="sourceLineNo">036</span><a name="line.36"></a>
+<span class="sourceLineNo">037</span><a name="line.37"></a>
+<span class="sourceLineNo">038</span>/**<a name="line.38"></a>
+<span class="sourceLineNo">039</span> * A client for talking to the Nexmo Voice API. The standard way to obtain an instance of this class is to use<a name="line.39"></a>
+<span class="sourceLineNo">040</span> * {@link NexmoClient#getSmsClient()}.<a name="line.40"></a>
+<span class="sourceLineNo">041</span> */<a name="line.41"></a>
+<span class="sourceLineNo">042</span>public class SmsClient {<a name="line.42"></a>
+<span class="sourceLineNo">043</span>    private SendMessageEndpoint message;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    private SmsSearchEndpoint search;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    private SearchRejectedMessagesEndpoint rejected;<a name="line.45"></a>
+<span class="sourceLineNo">046</span><a name="line.46"></a>
+<span class="sourceLineNo">047</span>    /**<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     * Create a new SmsClient.<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     */<a name="line.49"></a>
+<span class="sourceLineNo">050</span>    public SmsClient(HttpWrapper httpWrapper) {<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        this.message = new SendMessageEndpoint(httpWrapper);<a name="line.51"></a>
+<span class="sourceLineNo">052</span>        this.search = new SmsSearchEndpoint(httpWrapper);<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        this.rejected = new SearchRejectedMessagesEndpoint(httpWrapper);<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    }<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>    /**<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     * Send an SMS message.<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     * &lt;p&gt;<a name="line.58"></a>
+<span class="sourceLineNo">059</span>     * This uses the supplied object to construct a request and post it to the Nexmo API.&lt;br&gt;<a name="line.59"></a>
+<span class="sourceLineNo">060</span>     * This method will respond with an array of SmsSubmissionResult objects. Depending on the nature and length of the submitted message, Nexmo may automatically<a name="line.60"></a>
+<span class="sourceLineNo">061</span>     * split the message into multiple sms messages in order to deliver to the handset. For example, a long text sms of greater than 160 chars will need to be split<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     * into multiple 'concatenated' sms messages. The Nexmo service will handle this automatically for you.&lt;br&gt;<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     * The array of SmsSubmissionResult objects will contain a SmsSubmissionResult object for every actual sms that was required to submit the message.<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * each message can potentially have a different status result, and each message will have a different message id.<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * Delivery notifications will be generated for each sms message within this set and will be posted to your application containing the appropriate message id.<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     *<a name="line.66"></a>
+<span class="sourceLineNo">067</span>     * @param message The message request object that describes the type of message and the contents to be submitted.<a name="line.67"></a>
+<span class="sourceLineNo">068</span>     * @return SmsSubmissionResult[] an array of results, 1 object for each sms message that was required to submit this message in its entirety<a name="line.68"></a>
+<span class="sourceLineNo">069</span>     * @throws NexmoResponseParseException if the HTTP response could not be parsed.<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     * @throws IOException                 There has been an error attempting to communicate with the Nexmo service (e.g. Network failure).<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     */<a name="line.71"></a>
+<span class="sourceLineNo">072</span>    public SmsSubmissionResult[] submitMessage(Message message) throws IOException, NexmoClientException {<a name="line.72"></a>
+<span class="sourceLineNo">073</span>        return this.message.execute(message);<a name="line.73"></a>
+<span class="sourceLineNo">074</span>    }<a name="line.74"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
+<span class="sourceLineNo">076</span>    /**<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     * Search for completed SMS transactions.<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * &lt;p&gt;<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * You should probably use the helper methods {@link #searchMessages(String, String...)} or<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * {@link #searchMessages(String, String...)} instead.<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     */<a name="line.81"></a>
+<span class="sourceLineNo">082</span>    public SearchSmsResponse searchMessages(SearchSmsRequest request)<a name="line.82"></a>
+<span class="sourceLineNo">083</span>            throws IOException, NexmoClientException {<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        return this.search.execute(request);<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    }<a name="line.85"></a>
+<span class="sourceLineNo">086</span><a name="line.86"></a>
+<span class="sourceLineNo">087</span>    /**<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * Search for completed SMS transactions by ID<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     *<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * @param id  the first ID to look up<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     * @param ids optional extra IDs to look up<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     * @return SMS data matching the provided criteria<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     */<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    public SearchSmsResponse searchMessages(String id, String... ids)<a name="line.94"></a>
+<span class="sourceLineNo">095</span>            throws IOException, NexmoClientException {<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        List&lt;String&gt; idList = new ArrayList&lt;&gt;(ids.length + 1);<a name="line.96"></a>
+<span class="sourceLineNo">097</span>        idList.add(id);<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        idList.addAll(Arrays.asList(ids));<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        return this.searchMessages(new SmsIdSearchRequest(idList));<a name="line.99"></a>
+<span class="sourceLineNo">100</span>    }<a name="line.100"></a>
+<span class="sourceLineNo">101</span><a name="line.101"></a>
+<span class="sourceLineNo">102</span>    /**<a name="line.102"></a>
+<span class="sourceLineNo">103</span>     * Search for completed SMS transactions by date and recipient MSISDN.<a name="line.103"></a>
+<span class="sourceLineNo">104</span>     *<a name="line.104"></a>
+<span class="sourceLineNo">105</span>     * @param date the date of the SMS message to be looked up<a name="line.105"></a>
+<span class="sourceLineNo">106</span>     * @param to   the MSISDN number of the SMS recipient<a name="line.106"></a>
+<span class="sourceLineNo">107</span>     * @return SMS data matching the provided criteria<a name="line.107"></a>
+<span class="sourceLineNo">108</span>     */<a name="line.108"></a>
+<span class="sourceLineNo">109</span>    public SearchSmsResponse searchMessages(Date date, String to)<a name="line.109"></a>
+<span class="sourceLineNo">110</span>            throws IOException, NexmoClientException {<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        return this.searchMessages(new SmsDateSearchRequest(date, to));<a name="line.111"></a>
+<span class="sourceLineNo">112</span>    }<a name="line.112"></a>
+<span class="sourceLineNo">113</span><a name="line.113"></a>
+<span class="sourceLineNo">114</span>    /**<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     * Search for rejected SMS transactions using a {@link SearchRejectedMessagesRequest}.<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     * &lt;p&gt;<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     * You should probably use {@link #searchRejectedMessages(Date, String)} instead.<a name="line.117"></a>
+<span class="sourceLineNo">118</span><a name="line.118"></a>
+<span class="sourceLineNo">119</span>     * @return rejection data matching the provided criteria<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     */<a name="line.120"></a>
+<span class="sourceLineNo">121</span>    public SearchRejectedMessagesResponse searchRejectedMessages(SearchRejectedMessagesRequest request)<a name="line.121"></a>
+<span class="sourceLineNo">122</span>            throws IOException, NexmoClientException {<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        return this.rejected.execute(request);<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    }<a name="line.124"></a>
+<span class="sourceLineNo">125</span><a name="line.125"></a>
+<span class="sourceLineNo">126</span>    /**<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     * Search for rejected SMS transactions by date and recipient MSISDN.<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     *<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     * @param date the date of the rejected SMS message to be looked up<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     * @param to   the MSISDN number of the SMS recipient<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     * @return rejection data matching the provided criteria<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     */<a name="line.132"></a>
+<span class="sourceLineNo">133</span>    public SearchRejectedMessagesResponse searchRejectedMessages(Date date, String to)<a name="line.133"></a>
+<span class="sourceLineNo">134</span>            throws IOException, NexmoClientException {<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        return this.searchRejectedMessages(new SearchRejectedMessagesRequest(date, to));<a name="line.135"></a>
+<span class="sourceLineNo">136</span>    }<a name="line.136"></a>
+<span class="sourceLineNo">137</span>}<a name="line.137"></a>
 
 
 

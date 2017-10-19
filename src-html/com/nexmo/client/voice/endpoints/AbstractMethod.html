@@ -31,129 +31,151 @@
 <span class="sourceLineNo">023</span><a name="line.23"></a>
 <span class="sourceLineNo">024</span>import com.nexmo.client.HttpWrapper;<a name="line.24"></a>
 <span class="sourceLineNo">025</span>import com.nexmo.client.NexmoClientException;<a name="line.25"></a>
-<span class="sourceLineNo">026</span>import com.nexmo.client.NexmoUnexpectedException;<a name="line.26"></a>
-<span class="sourceLineNo">027</span>import com.nexmo.client.auth.AuthMethod;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>import org.apache.commons.logging.Log;<a name="line.28"></a>
-<span class="sourceLineNo">029</span>import org.apache.commons.logging.LogFactory;<a name="line.29"></a>
-<span class="sourceLineNo">030</span>import org.apache.http.HttpResponse;<a name="line.30"></a>
-<span class="sourceLineNo">031</span>import org.apache.http.client.HttpClient;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>import org.apache.http.client.methods.HttpUriRequest;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>import org.apache.http.client.methods.RequestBuilder;<a name="line.34"></a>
-<span class="sourceLineNo">035</span>import org.apache.http.util.EntityUtils;<a name="line.35"></a>
-<span class="sourceLineNo">036</span><a name="line.36"></a>
-<span class="sourceLineNo">037</span>import java.io.IOException;<a name="line.37"></a>
-<span class="sourceLineNo">038</span>import java.io.UnsupportedEncodingException;<a name="line.38"></a>
-<span class="sourceLineNo">039</span>import java.util.HashSet;<a name="line.39"></a>
-<span class="sourceLineNo">040</span>import java.util.Set;<a name="line.40"></a>
-<span class="sourceLineNo">041</span><a name="line.41"></a>
-<span class="sourceLineNo">042</span>/**<a name="line.42"></a>
-<span class="sourceLineNo">043</span> * Abstract class to assist in implementing a call against a REST endpoint.<a name="line.43"></a>
-<span class="sourceLineNo">044</span> * &lt;p&gt;<a name="line.44"></a>
-<span class="sourceLineNo">045</span> * Concrete implementations must implement {@link #makeRequest(Object)} to construct a {@link RequestBuilder} from the<a name="line.45"></a>
-<span class="sourceLineNo">046</span> * provided parameterized request object, and {@link #parseResponse(HttpResponse)} to construct the parameterized<a name="line.46"></a>
-<span class="sourceLineNo">047</span> * {@link HttpResponse} object.<a name="line.47"></a>
-<span class="sourceLineNo">048</span> * &lt;p&gt;<a name="line.48"></a>
-<span class="sourceLineNo">049</span> * The REST call is executed by calling {@link #execute(Object)}.<a name="line.49"></a>
-<span class="sourceLineNo">050</span> *<a name="line.50"></a>
-<span class="sourceLineNo">051</span> * @param &lt;RequestT&gt; The type of the method-specific request object that will be used to construct an HTTP request<a name="line.51"></a>
-<span class="sourceLineNo">052</span> * @param &lt;ResultT&gt;  The type of method-specific response object which will be constructed from the returned<a name="line.52"></a>
-<span class="sourceLineNo">053</span> *                   HTTP response<a name="line.53"></a>
-<span class="sourceLineNo">054</span> */<a name="line.54"></a>
-<span class="sourceLineNo">055</span>public abstract class AbstractMethod&lt;RequestT, ResultT&gt; implements Method&lt;RequestT, ResultT&gt; {<a name="line.55"></a>
-<span class="sourceLineNo">056</span>    private static final Log LOG = LogFactory.getLog(AbstractMethod.class);<a name="line.56"></a>
-<span class="sourceLineNo">057</span><a name="line.57"></a>
-<span class="sourceLineNo">058</span>    private final HttpWrapper httpWrapper;<a name="line.58"></a>
-<span class="sourceLineNo">059</span>    private Set&lt;Class&gt; acceptable;<a name="line.59"></a>
-<span class="sourceLineNo">060</span><a name="line.60"></a>
-<span class="sourceLineNo">061</span>    public AbstractMethod(HttpWrapper httpWrapper) {<a name="line.61"></a>
-<span class="sourceLineNo">062</span>        this.httpWrapper = httpWrapper;<a name="line.62"></a>
-<span class="sourceLineNo">063</span>    }<a name="line.63"></a>
-<span class="sourceLineNo">064</span><a name="line.64"></a>
-<span class="sourceLineNo">065</span>    /**<a name="line.65"></a>
-<span class="sourceLineNo">066</span>     * Execute the REST call represented by this method object.<a name="line.66"></a>
-<span class="sourceLineNo">067</span>     *<a name="line.67"></a>
-<span class="sourceLineNo">068</span>     * @param request A RequestT representing input to the REST call to be made<a name="line.68"></a>
-<span class="sourceLineNo">069</span>     * @return A ResultT representing the response from the executed REST call<a name="line.69"></a>
-<span class="sourceLineNo">070</span>     * @throws IOException          if an exception occurs making the REST call<a name="line.70"></a>
-<span class="sourceLineNo">071</span>     * @throws NexmoClientException if there is a problem parsing the HTTP response<a name="line.71"></a>
-<span class="sourceLineNo">072</span>     */<a name="line.72"></a>
-<span class="sourceLineNo">073</span>    // TODO: Consider wrapping IOException in a nexmo-specific transport exception.<a name="line.73"></a>
-<span class="sourceLineNo">074</span>    public ResultT execute(RequestT request) throws IOException, NexmoClientException {<a name="line.74"></a>
-<span class="sourceLineNo">075</span>        try {<a name="line.75"></a>
-<span class="sourceLineNo">076</span>            HttpUriRequest httpRequest = applyAuth(makeRequest(request)).build();<a name="line.76"></a>
-<span class="sourceLineNo">077</span>            LOG.debug("Request: " + httpRequest);<a name="line.77"></a>
-<span class="sourceLineNo">078</span>            if (LOG.isDebugEnabled() &amp;&amp; httpRequest instanceof HttpEntityEnclosingRequestBase) {<a name="line.78"></a>
-<span class="sourceLineNo">079</span>                HttpEntityEnclosingRequestBase enclosingRequest = (HttpEntityEnclosingRequestBase) httpRequest;<a name="line.79"></a>
-<span class="sourceLineNo">080</span>                LOG.debug(EntityUtils.toString(enclosingRequest.getEntity()));<a name="line.80"></a>
-<span class="sourceLineNo">081</span>            }<a name="line.81"></a>
-<span class="sourceLineNo">082</span>            HttpResponse response = this.httpWrapper.getHttpClient().execute(httpRequest);<a name="line.82"></a>
-<span class="sourceLineNo">083</span>            LOG.debug("Response: " + response.getStatusLine());<a name="line.83"></a>
-<span class="sourceLineNo">084</span>            return parseResponse(response);<a name="line.84"></a>
-<span class="sourceLineNo">085</span>        } catch (UnsupportedEncodingException uee) {<a name="line.85"></a>
-<span class="sourceLineNo">086</span>            throw new NexmoUnexpectedException("UTF-8 encoding is not supported by this JVM.", uee);<a name="line.86"></a>
-<span class="sourceLineNo">087</span>        }<a name="line.87"></a>
-<span class="sourceLineNo">088</span><a name="line.88"></a>
-<span class="sourceLineNo">089</span>    }<a name="line.89"></a>
-<span class="sourceLineNo">090</span><a name="line.90"></a>
-<span class="sourceLineNo">091</span>    /**<a name="line.91"></a>
-<span class="sourceLineNo">092</span>     * Apply an appropriate authentication method (specified by {@link #getAcceptableAuthMethods()} to the provided<a name="line.92"></a>
-<span class="sourceLineNo">093</span>     * {@link RequestBuilder}, and return the result.<a name="line.93"></a>
-<span class="sourceLineNo">094</span>     *<a name="line.94"></a>
-<span class="sourceLineNo">095</span>     * @param request A RequestBuilder which has not yet had authentication information applied<a name="line.95"></a>
-<span class="sourceLineNo">096</span>     * @return A RequestBuilder with appropriate authentication information applied (may or not be the same instance as<a name="line.96"></a>
-<span class="sourceLineNo">097</span>     * &lt;pre&gt;request&lt;/pre&gt;)<a name="line.97"></a>
-<span class="sourceLineNo">098</span>     * @throws NexmoClientException If no appropriate {@link AuthMethod} is available<a name="line.98"></a>
-<span class="sourceLineNo">099</span>     */<a name="line.99"></a>
-<span class="sourceLineNo">100</span>    protected RequestBuilder applyAuth(RequestBuilder request) throws NexmoClientException {<a name="line.100"></a>
-<span class="sourceLineNo">101</span>        return getAuthMethod(getAcceptableAuthMethods()).apply(request);<a name="line.101"></a>
-<span class="sourceLineNo">102</span>    }<a name="line.102"></a>
-<span class="sourceLineNo">103</span><a name="line.103"></a>
-<span class="sourceLineNo">104</span>    /**<a name="line.104"></a>
-<span class="sourceLineNo">105</span>     * Utility method for obtaining an appropriate {@link AuthMethod} for this call.<a name="line.105"></a>
-<span class="sourceLineNo">106</span>     *<a name="line.106"></a>
-<span class="sourceLineNo">107</span>     * @param acceptableAuthMethods an array of classes, representing authentication methods that are acceptable for<a name="line.107"></a>
-<span class="sourceLineNo">108</span>     *                              this endpoint<a name="line.108"></a>
-<span class="sourceLineNo">109</span>     * @return An AuthMethod created from one of the provided acceptableAuthMethods.<a name="line.109"></a>
-<span class="sourceLineNo">110</span>     * @throws NexmoClientException If no AuthMethod is available from the provided array of acceptableAuthMethods.<a name="line.110"></a>
-<span class="sourceLineNo">111</span>     */<a name="line.111"></a>
-<span class="sourceLineNo">112</span>    protected AuthMethod getAuthMethod(Class[] acceptableAuthMethods) throws NexmoClientException {<a name="line.112"></a>
-<span class="sourceLineNo">113</span>        if (acceptable == null) {<a name="line.113"></a>
-<span class="sourceLineNo">114</span>            this.acceptable = new HashSet&lt;&gt;();<a name="line.114"></a>
-<span class="sourceLineNo">115</span>            for (Class c : acceptableAuthMethods) {<a name="line.115"></a>
-<span class="sourceLineNo">116</span>                acceptable.add(c);<a name="line.116"></a>
-<span class="sourceLineNo">117</span>            }<a name="line.117"></a>
-<span class="sourceLineNo">118</span>        }<a name="line.118"></a>
-<span class="sourceLineNo">119</span><a name="line.119"></a>
-<span class="sourceLineNo">120</span>        return this.httpWrapper.getAuthCollection().getAcceptableAuthMethod(acceptable);<a name="line.120"></a>
-<span class="sourceLineNo">121</span>    }<a name="line.121"></a>
-<span class="sourceLineNo">122</span><a name="line.122"></a>
-<span class="sourceLineNo">123</span>    public void setHttpClient(HttpClient client) {<a name="line.123"></a>
-<span class="sourceLineNo">124</span>        this.httpWrapper.setHttpClient(client);<a name="line.124"></a>
-<span class="sourceLineNo">125</span>    }<a name="line.125"></a>
-<span class="sourceLineNo">126</span><a name="line.126"></a>
-<span class="sourceLineNo">127</span>    protected abstract Class[] getAcceptableAuthMethods();<a name="line.127"></a>
-<span class="sourceLineNo">128</span><a name="line.128"></a>
-<span class="sourceLineNo">129</span>    /**<a name="line.129"></a>
-<span class="sourceLineNo">130</span>     * Construct and return a RequestBuilder instance from the provided request.<a name="line.130"></a>
-<span class="sourceLineNo">131</span>     *<a name="line.131"></a>
-<span class="sourceLineNo">132</span>     * @param request A RequestT representing input to the REST call to be made<a name="line.132"></a>
-<span class="sourceLineNo">133</span>     * @return A ResultT representing the response from the executed REST call<a name="line.133"></a>
-<span class="sourceLineNo">134</span>     * @throws NexmoClientException         if a problem is encountered constructing the request or response.<a name="line.134"></a>
-<span class="sourceLineNo">135</span>     * @throws UnsupportedEncodingException if UTF-8 encoding is not supported by the JVM<a name="line.135"></a>
-<span class="sourceLineNo">136</span>     */<a name="line.136"></a>
-<span class="sourceLineNo">137</span>    public abstract RequestBuilder makeRequest(RequestT request)<a name="line.137"></a>
-<span class="sourceLineNo">138</span>            throws NexmoClientException, UnsupportedEncodingException;<a name="line.138"></a>
-<span class="sourceLineNo">139</span><a name="line.139"></a>
-<span class="sourceLineNo">140</span>    /**<a name="line.140"></a>
-<span class="sourceLineNo">141</span>     * Construct a ResultT representing the contents of the HTTP response returned from the Nexmo Voice API.<a name="line.141"></a>
-<span class="sourceLineNo">142</span>     *<a name="line.142"></a>
-<span class="sourceLineNo">143</span>     * @param response An HttpResponse returned from the Nexmo Voice API<a name="line.143"></a>
-<span class="sourceLineNo">144</span>     * @return A ResultT type representing the result of the REST call<a name="line.144"></a>
-<span class="sourceLineNo">145</span>     * @throws IOException if a problem occurs parsing the response<a name="line.145"></a>
-<span class="sourceLineNo">146</span>     */<a name="line.146"></a>
-<span class="sourceLineNo">147</span>    public abstract ResultT parseResponse(HttpResponse response) throws IOException;<a name="line.147"></a>
-<span class="sourceLineNo">148</span>}<a name="line.148"></a>
+<span class="sourceLineNo">026</span>import com.nexmo.client.NexmoMethodFailedException;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import com.nexmo.client.NexmoUnexpectedException;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import com.nexmo.client.auth.AuthMethod;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import org.apache.commons.logging.Log;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import org.apache.commons.logging.LogFactory;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import org.apache.http.HttpEntity;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import org.apache.http.HttpEntityEnclosingRequest;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import org.apache.http.HttpResponse;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import org.apache.http.client.HttpClient;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.apache.http.client.entity.UrlEncodedFormEntity;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import org.apache.http.client.methods.HttpUriRequest;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import org.apache.http.client.methods.RequestBuilder;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import org.apache.http.util.EntityUtils;<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
+<span class="sourceLineNo">041</span>import java.io.IOException;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>import java.io.UnsupportedEncodingException;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>import java.nio.charset.Charset;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>import java.util.HashSet;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>import java.util.Set;<a name="line.45"></a>
+<span class="sourceLineNo">046</span><a name="line.46"></a>
+<span class="sourceLineNo">047</span>/**<a name="line.47"></a>
+<span class="sourceLineNo">048</span> * Abstract class to assist in implementing a call against a REST endpoint.<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * &lt;p&gt;<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * Concrete implementations must implement {@link #makeRequest(Object)} to construct a {@link RequestBuilder} from the<a name="line.50"></a>
+<span class="sourceLineNo">051</span> * provided parameterized request object, and {@link #parseResponse(HttpResponse)} to construct the parameterized<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * {@link HttpResponse} object.<a name="line.52"></a>
+<span class="sourceLineNo">053</span> * &lt;p&gt;<a name="line.53"></a>
+<span class="sourceLineNo">054</span> * The REST call is executed by calling {@link #execute(Object)}.<a name="line.54"></a>
+<span class="sourceLineNo">055</span> *<a name="line.55"></a>
+<span class="sourceLineNo">056</span> * @param &lt;RequestT&gt; The type of the method-specific request object that will be used to construct an HTTP request<a name="line.56"></a>
+<span class="sourceLineNo">057</span> * @param &lt;ResultT&gt;  The type of method-specific response object which will be constructed from the returned<a name="line.57"></a>
+<span class="sourceLineNo">058</span> *                   HTTP response<a name="line.58"></a>
+<span class="sourceLineNo">059</span> */<a name="line.59"></a>
+<span class="sourceLineNo">060</span>public abstract class AbstractMethod&lt;RequestT, ResultT&gt; implements Method&lt;RequestT, ResultT&gt; {<a name="line.60"></a>
+<span class="sourceLineNo">061</span>    private static final Log LOG = LogFactory.getLog(AbstractMethod.class);<a name="line.61"></a>
+<span class="sourceLineNo">062</span><a name="line.62"></a>
+<span class="sourceLineNo">063</span>    private final HttpWrapper httpWrapper;<a name="line.63"></a>
+<span class="sourceLineNo">064</span>    private Set&lt;Class&gt; acceptable;<a name="line.64"></a>
+<span class="sourceLineNo">065</span><a name="line.65"></a>
+<span class="sourceLineNo">066</span>    public AbstractMethod(HttpWrapper httpWrapper) {<a name="line.66"></a>
+<span class="sourceLineNo">067</span>        this.httpWrapper = httpWrapper;<a name="line.67"></a>
+<span class="sourceLineNo">068</span>    }<a name="line.68"></a>
+<span class="sourceLineNo">069</span><a name="line.69"></a>
+<span class="sourceLineNo">070</span>    /**<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     * Execute the REST call represented by this method object.<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     *<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     * @param request A RequestT representing input to the REST call to be made<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     * @return A ResultT representing the response from the executed REST call<a name="line.74"></a>
+<span class="sourceLineNo">075</span>     * @throws IOException          if an exception occurs making the REST call<a name="line.75"></a>
+<span class="sourceLineNo">076</span>     * @throws NexmoClientException if there is a problem parsing the HTTP response<a name="line.76"></a>
+<span class="sourceLineNo">077</span>     */<a name="line.77"></a>
+<span class="sourceLineNo">078</span>    // TODO: Consider wrapping IOException in a nexmo-specific transport exception.<a name="line.78"></a>
+<span class="sourceLineNo">079</span>    public ResultT execute(RequestT request) throws IOException, NexmoClientException {<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        try {<a name="line.80"></a>
+<span class="sourceLineNo">081</span>            RequestBuilder requestBuilder = applyAuth(makeRequest(request));<a name="line.81"></a>
+<span class="sourceLineNo">082</span>            HttpUriRequest httpRequest = requestBuilder.build();<a name="line.82"></a>
+<span class="sourceLineNo">083</span><a name="line.83"></a>
+<span class="sourceLineNo">084</span>            // If we have a URL Encoded form entity, we may need to regenerate it as UTF-8<a name="line.84"></a>
+<span class="sourceLineNo">085</span>            // due to a bug (or two!) in RequestBuilder:<a name="line.85"></a>
+<span class="sourceLineNo">086</span>            //<a name="line.86"></a>
+<span class="sourceLineNo">087</span>            // This fix can be removed when HttpClient is upgraded to 4.5, although 4.5 also<a name="line.87"></a>
+<span class="sourceLineNo">088</span>            // has a bug where RequestBuilder.put(uri) and RequestBuilder.post(uri) use the<a name="line.88"></a>
+<span class="sourceLineNo">089</span>            // wrong encoding, whereas RequestBuilder.put().setUri(uri) uses UTF-8.<a name="line.89"></a>
+<span class="sourceLineNo">090</span>            // - MS 2017-04-12<a name="line.90"></a>
+<span class="sourceLineNo">091</span>            if (httpRequest instanceof HttpEntityEnclosingRequest) {<a name="line.91"></a>
+<span class="sourceLineNo">092</span>                HttpEntityEnclosingRequest entityRequest =<a name="line.92"></a>
+<span class="sourceLineNo">093</span>                        (HttpEntityEnclosingRequest) httpRequest;<a name="line.93"></a>
+<span class="sourceLineNo">094</span>                HttpEntity entity = entityRequest.getEntity();<a name="line.94"></a>
+<span class="sourceLineNo">095</span>                if (entity != null &amp;&amp; entity instanceof UrlEncodedFormEntity) {<a name="line.95"></a>
+<span class="sourceLineNo">096</span>                    entityRequest.setEntity(new UrlEncodedFormEntity(<a name="line.96"></a>
+<span class="sourceLineNo">097</span>                            requestBuilder.getParameters(),<a name="line.97"></a>
+<span class="sourceLineNo">098</span>                            Charset.forName("UTF-8")));<a name="line.98"></a>
+<span class="sourceLineNo">099</span>                }<a name="line.99"></a>
+<span class="sourceLineNo">100</span>            }<a name="line.100"></a>
+<span class="sourceLineNo">101</span>            LOG.debug("Request: " + httpRequest);<a name="line.101"></a>
+<span class="sourceLineNo">102</span>            if (LOG.isDebugEnabled() &amp;&amp; httpRequest instanceof HttpEntityEnclosingRequestBase) {<a name="line.102"></a>
+<span class="sourceLineNo">103</span>                HttpEntityEnclosingRequestBase enclosingRequest = (HttpEntityEnclosingRequestBase) httpRequest;<a name="line.103"></a>
+<span class="sourceLineNo">104</span>                LOG.debug(EntityUtils.toString(enclosingRequest.getEntity()));<a name="line.104"></a>
+<span class="sourceLineNo">105</span>            }<a name="line.105"></a>
+<span class="sourceLineNo">106</span>            HttpResponse response = this.httpWrapper.getHttpClient().execute(httpRequest);<a name="line.106"></a>
+<span class="sourceLineNo">107</span>            return parseResponse(response);<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        } catch (UnsupportedEncodingException uee) {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>            throw new NexmoUnexpectedException("UTF-8 encoding is not supported by this JVM.", uee);<a name="line.109"></a>
+<span class="sourceLineNo">110</span>        }<a name="line.110"></a>
+<span class="sourceLineNo">111</span>    }<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
+<span class="sourceLineNo">113</span>    /**<a name="line.113"></a>
+<span class="sourceLineNo">114</span>     * Apply an appropriate authentication method (specified by {@link #getAcceptableAuthMethods()} to the provided<a name="line.114"></a>
+<span class="sourceLineNo">115</span>     * {@link RequestBuilder}, and return the result.<a name="line.115"></a>
+<span class="sourceLineNo">116</span>     *<a name="line.116"></a>
+<span class="sourceLineNo">117</span>     * @param request A RequestBuilder which has not yet had authentication information applied<a name="line.117"></a>
+<span class="sourceLineNo">118</span>     * @return A RequestBuilder with appropriate authentication information applied (may or not be the same instance as<a name="line.118"></a>
+<span class="sourceLineNo">119</span>     * &lt;pre&gt;request&lt;/pre&gt;)<a name="line.119"></a>
+<span class="sourceLineNo">120</span>     * @throws NexmoClientException If no appropriate {@link AuthMethod} is available<a name="line.120"></a>
+<span class="sourceLineNo">121</span>     */<a name="line.121"></a>
+<span class="sourceLineNo">122</span>    protected RequestBuilder applyAuth(RequestBuilder request) throws NexmoClientException {<a name="line.122"></a>
+<span class="sourceLineNo">123</span>        return getAuthMethod(getAcceptableAuthMethods()).apply(request);<a name="line.123"></a>
+<span class="sourceLineNo">124</span>    }<a name="line.124"></a>
+<span class="sourceLineNo">125</span><a name="line.125"></a>
+<span class="sourceLineNo">126</span>    /**<a name="line.126"></a>
+<span class="sourceLineNo">127</span>     * Utility method for obtaining an appropriate {@link AuthMethod} for this call.<a name="line.127"></a>
+<span class="sourceLineNo">128</span>     *<a name="line.128"></a>
+<span class="sourceLineNo">129</span>     * @param acceptableAuthMethods an array of classes, representing authentication methods that are acceptable for<a name="line.129"></a>
+<span class="sourceLineNo">130</span>     *                              this endpoint<a name="line.130"></a>
+<span class="sourceLineNo">131</span>     * @return An AuthMethod created from one of the provided acceptableAuthMethods.<a name="line.131"></a>
+<span class="sourceLineNo">132</span>     * @throws NexmoClientException If no AuthMethod is available from the provided array of acceptableAuthMethods.<a name="line.132"></a>
+<span class="sourceLineNo">133</span>     */<a name="line.133"></a>
+<span class="sourceLineNo">134</span>    protected AuthMethod getAuthMethod(Class[] acceptableAuthMethods) throws NexmoClientException {<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        if (acceptable == null) {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>            this.acceptable = new HashSet&lt;&gt;();<a name="line.136"></a>
+<span class="sourceLineNo">137</span>            for (Class c : acceptableAuthMethods) {<a name="line.137"></a>
+<span class="sourceLineNo">138</span>                acceptable.add(c);<a name="line.138"></a>
+<span class="sourceLineNo">139</span>            }<a name="line.139"></a>
+<span class="sourceLineNo">140</span>        }<a name="line.140"></a>
+<span class="sourceLineNo">141</span><a name="line.141"></a>
+<span class="sourceLineNo">142</span>        return this.httpWrapper.getAuthCollection().getAcceptableAuthMethod(acceptable);<a name="line.142"></a>
+<span class="sourceLineNo">143</span>    }<a name="line.143"></a>
+<span class="sourceLineNo">144</span><a name="line.144"></a>
+<span class="sourceLineNo">145</span>    public void setHttpClient(HttpClient client) {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>        this.httpWrapper.setHttpClient(client);<a name="line.146"></a>
+<span class="sourceLineNo">147</span>    }<a name="line.147"></a>
+<span class="sourceLineNo">148</span><a name="line.148"></a>
+<span class="sourceLineNo">149</span>    protected abstract Class[] getAcceptableAuthMethods();<a name="line.149"></a>
+<span class="sourceLineNo">150</span><a name="line.150"></a>
+<span class="sourceLineNo">151</span>    /**<a name="line.151"></a>
+<span class="sourceLineNo">152</span>     * Construct and return a RequestBuilder instance from the provided request.<a name="line.152"></a>
+<span class="sourceLineNo">153</span>     *<a name="line.153"></a>
+<span class="sourceLineNo">154</span>     * @param request A RequestT representing input to the REST call to be made<a name="line.154"></a>
+<span class="sourceLineNo">155</span>     * @return A ResultT representing the response from the executed REST call<a name="line.155"></a>
+<span class="sourceLineNo">156</span>     * @throws NexmoClientException         if a problem is encountered constructing the request or response.<a name="line.156"></a>
+<span class="sourceLineNo">157</span>     * @throws UnsupportedEncodingException if UTF-8 encoding is not supported by the JVM<a name="line.157"></a>
+<span class="sourceLineNo">158</span>     */<a name="line.158"></a>
+<span class="sourceLineNo">159</span>    public abstract RequestBuilder makeRequest(RequestT request)<a name="line.159"></a>
+<span class="sourceLineNo">160</span>            throws NexmoClientException, UnsupportedEncodingException;<a name="line.160"></a>
+<span class="sourceLineNo">161</span><a name="line.161"></a>
+<span class="sourceLineNo">162</span>    /**<a name="line.162"></a>
+<span class="sourceLineNo">163</span>     * Construct a ResultT representing the contents of the HTTP response returned from the Nexmo Voice API.<a name="line.163"></a>
+<span class="sourceLineNo">164</span>     *<a name="line.164"></a>
+<span class="sourceLineNo">165</span>     * @param response An HttpResponse returned from the Nexmo Voice API<a name="line.165"></a>
+<span class="sourceLineNo">166</span>     * @return A ResultT type representing the result of the REST call<a name="line.166"></a>
+<span class="sourceLineNo">167</span>     * @throws IOException if a problem occurs parsing the response<a name="line.167"></a>
+<span class="sourceLineNo">168</span>     */<a name="line.168"></a>
+<span class="sourceLineNo">169</span>    public abstract ResultT parseResponse(HttpResponse response) throws IOException, NexmoClientException;<a name="line.169"></a>
+<span class="sourceLineNo">170</span>}<a name="line.170"></a>
 
 
 

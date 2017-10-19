@@ -32,39 +32,41 @@
 <span class="sourceLineNo">024</span>import org.apache.commons.lang3.builder.EqualsBuilder;<a name="line.24"></a>
 <span class="sourceLineNo">025</span><a name="line.25"></a>
 <span class="sourceLineNo">026</span>public class BaseInsightRequest {<a name="line.26"></a>
-<span class="sourceLineNo">027</span>    protected final String number;<a name="line.27"></a>
-<span class="sourceLineNo">028</span>    protected String country;<a name="line.28"></a>
-<span class="sourceLineNo">029</span><a name="line.29"></a>
-<span class="sourceLineNo">030</span>    public BaseInsightRequest(String number, String country) {<a name="line.30"></a>
-<span class="sourceLineNo">031</span>        this.number = number;<a name="line.31"></a>
-<span class="sourceLineNo">032</span>        this.country = country;<a name="line.32"></a>
-<span class="sourceLineNo">033</span>    }<a name="line.33"></a>
-<span class="sourceLineNo">034</span><a name="line.34"></a>
-<span class="sourceLineNo">035</span>    public String getNumber() {<a name="line.35"></a>
-<span class="sourceLineNo">036</span>        return number;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>    }<a name="line.37"></a>
-<span class="sourceLineNo">038</span><a name="line.38"></a>
-<span class="sourceLineNo">039</span>    public String getCountry() {<a name="line.39"></a>
-<span class="sourceLineNo">040</span>        return country;<a name="line.40"></a>
-<span class="sourceLineNo">041</span>    }<a name="line.41"></a>
-<span class="sourceLineNo">042</span><a name="line.42"></a>
-<span class="sourceLineNo">043</span>    @Override<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    public boolean equals(Object obj) {<a name="line.44"></a>
-<span class="sourceLineNo">045</span>        if (obj == null) {<a name="line.45"></a>
-<span class="sourceLineNo">046</span>            return false;<a name="line.46"></a>
-<span class="sourceLineNo">047</span>        } else if (obj == this) {<a name="line.47"></a>
-<span class="sourceLineNo">048</span>            return true;<a name="line.48"></a>
-<span class="sourceLineNo">049</span>        } else if (obj.getClass() != this.getClass()) {<a name="line.49"></a>
-<span class="sourceLineNo">050</span>            return false;<a name="line.50"></a>
-<span class="sourceLineNo">051</span>        } else {<a name="line.51"></a>
-<span class="sourceLineNo">052</span>            BaseInsightRequest other = (BaseInsightRequest) obj;<a name="line.52"></a>
-<span class="sourceLineNo">053</span>            return new EqualsBuilder()<a name="line.53"></a>
-<span class="sourceLineNo">054</span>                    .append(this.getNumber(), other.getNumber())<a name="line.54"></a>
-<span class="sourceLineNo">055</span>                    .append(this.getCountry(), other.getCountry())<a name="line.55"></a>
-<span class="sourceLineNo">056</span>                    .isEquals();<a name="line.56"></a>
-<span class="sourceLineNo">057</span>        }<a name="line.57"></a>
-<span class="sourceLineNo">058</span>    }<a name="line.58"></a>
-<span class="sourceLineNo">059</span>}<a name="line.59"></a>
+<span class="sourceLineNo">027</span>    protected static final String DEFAULT_COUNTRY = null;<a name="line.27"></a>
+<span class="sourceLineNo">028</span><a name="line.28"></a>
+<span class="sourceLineNo">029</span>    protected final String number;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>    protected final String country;<a name="line.30"></a>
+<span class="sourceLineNo">031</span><a name="line.31"></a>
+<span class="sourceLineNo">032</span>    public BaseInsightRequest(String number, String country) {<a name="line.32"></a>
+<span class="sourceLineNo">033</span>        this.number = number;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>        this.country = country;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>    }<a name="line.35"></a>
+<span class="sourceLineNo">036</span><a name="line.36"></a>
+<span class="sourceLineNo">037</span>    public String getNumber() {<a name="line.37"></a>
+<span class="sourceLineNo">038</span>        return number;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>    }<a name="line.39"></a>
+<span class="sourceLineNo">040</span><a name="line.40"></a>
+<span class="sourceLineNo">041</span>    public String getCountry() {<a name="line.41"></a>
+<span class="sourceLineNo">042</span>        return country;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>    }<a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span>    @Override<a name="line.45"></a>
+<span class="sourceLineNo">046</span>    public boolean equals(Object obj) {<a name="line.46"></a>
+<span class="sourceLineNo">047</span>        if (obj == null) {<a name="line.47"></a>
+<span class="sourceLineNo">048</span>            return false;<a name="line.48"></a>
+<span class="sourceLineNo">049</span>        } else if (obj == this) {<a name="line.49"></a>
+<span class="sourceLineNo">050</span>            return true;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        } else if (obj.getClass() != this.getClass()) {<a name="line.51"></a>
+<span class="sourceLineNo">052</span>            return false;<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        } else {<a name="line.53"></a>
+<span class="sourceLineNo">054</span>            BaseInsightRequest other = (BaseInsightRequest) obj;<a name="line.54"></a>
+<span class="sourceLineNo">055</span>            return new EqualsBuilder()<a name="line.55"></a>
+<span class="sourceLineNo">056</span>                    .append(this.getNumber(), other.getNumber())<a name="line.56"></a>
+<span class="sourceLineNo">057</span>                    .append(this.getCountry(), other.getCountry())<a name="line.57"></a>
+<span class="sourceLineNo">058</span>                    .isEquals();<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        }<a name="line.59"></a>
+<span class="sourceLineNo">060</span>    }<a name="line.60"></a>
+<span class="sourceLineNo">061</span>}<a name="line.61"></a>
 
 
 

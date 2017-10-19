@@ -39,39 +39,39 @@
 <span class="sourceLineNo">031</span>import org.apache.http.HttpResponse;<a name="line.31"></a>
 <span class="sourceLineNo">032</span>import org.apache.http.client.methods.RequestBuilder;<a name="line.32"></a>
 <span class="sourceLineNo">033</span>import org.apache.http.entity.StringEntity;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>import org.apache.http.util.EntityUtils;<a name="line.34"></a>
-<span class="sourceLineNo">035</span><a name="line.35"></a>
-<span class="sourceLineNo">036</span>import java.io.IOException;<a name="line.36"></a>
-<span class="sourceLineNo">037</span>import java.io.UnsupportedEncodingException;<a name="line.37"></a>
-<span class="sourceLineNo">038</span><a name="line.38"></a>
-<span class="sourceLineNo">039</span>public class SendDtmfMethod extends AbstractMethod&lt;DtmfRequest, DtmfResponse&gt; {<a name="line.39"></a>
-<span class="sourceLineNo">040</span>    private static final Log LOG = LogFactory.getLog(SendDtmfMethod.class);<a name="line.40"></a>
-<span class="sourceLineNo">041</span><a name="line.41"></a>
-<span class="sourceLineNo">042</span>    private static final String DEFAULT_URI = "https://api.nexmo.com/v1/calls/";<a name="line.42"></a>
-<span class="sourceLineNo">043</span>    private static final Class[] ALLOWED_AUTH_METHODS = new Class[]{JWTAuthMethod.class};<a name="line.43"></a>
-<span class="sourceLineNo">044</span>    private String uri = DEFAULT_URI;<a name="line.44"></a>
-<span class="sourceLineNo">045</span><a name="line.45"></a>
-<span class="sourceLineNo">046</span>    public SendDtmfMethod(HttpWrapper httpWrapper) {<a name="line.46"></a>
-<span class="sourceLineNo">047</span>        super(httpWrapper);<a name="line.47"></a>
-<span class="sourceLineNo">048</span>    }<a name="line.48"></a>
-<span class="sourceLineNo">049</span><a name="line.49"></a>
-<span class="sourceLineNo">050</span>    @Override<a name="line.50"></a>
-<span class="sourceLineNo">051</span>    protected Class[] getAcceptableAuthMethods() {<a name="line.51"></a>
-<span class="sourceLineNo">052</span>        return ALLOWED_AUTH_METHODS;<a name="line.52"></a>
-<span class="sourceLineNo">053</span>    }<a name="line.53"></a>
-<span class="sourceLineNo">054</span><a name="line.54"></a>
-<span class="sourceLineNo">055</span>    @Override<a name="line.55"></a>
-<span class="sourceLineNo">056</span>    public RequestBuilder makeRequest(DtmfRequest request) throws NexmoClientException, UnsupportedEncodingException {<a name="line.56"></a>
-<span class="sourceLineNo">057</span>        String uri = this.uri + request.getUuid() + "/dtmf";<a name="line.57"></a>
-<span class="sourceLineNo">058</span>        return RequestBuilder.put(uri)<a name="line.58"></a>
-<span class="sourceLineNo">059</span>                .setHeader("Content-Type", "application/json")<a name="line.59"></a>
-<span class="sourceLineNo">060</span>                .setEntity(new StringEntity(request.toJson()));<a name="line.60"></a>
-<span class="sourceLineNo">061</span>    }<a name="line.61"></a>
-<span class="sourceLineNo">062</span><a name="line.62"></a>
-<span class="sourceLineNo">063</span>    @Override<a name="line.63"></a>
-<span class="sourceLineNo">064</span>    public DtmfResponse parseResponse(HttpResponse response) throws IOException {<a name="line.64"></a>
-<span class="sourceLineNo">065</span>        String json = EntityUtils.toString(response.getEntity());<a name="line.65"></a>
-<span class="sourceLineNo">066</span>        LOG.info("Received: " + json);<a name="line.66"></a>
+<span class="sourceLineNo">034</span>import org.apache.http.impl.client.BasicResponseHandler;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import org.apache.http.util.EntityUtils;<a name="line.35"></a>
+<span class="sourceLineNo">036</span><a name="line.36"></a>
+<span class="sourceLineNo">037</span>import java.io.IOException;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import java.io.UnsupportedEncodingException;<a name="line.38"></a>
+<span class="sourceLineNo">039</span><a name="line.39"></a>
+<span class="sourceLineNo">040</span>public class SendDtmfMethod extends AbstractMethod&lt;DtmfRequest, DtmfResponse&gt; {<a name="line.40"></a>
+<span class="sourceLineNo">041</span>    private static final Log LOG = LogFactory.getLog(SendDtmfMethod.class);<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>    private static final String DEFAULT_URI = "https://api.nexmo.com/v1/calls/";<a name="line.43"></a>
+<span class="sourceLineNo">044</span>    private static final Class[] ALLOWED_AUTH_METHODS = new Class[]{JWTAuthMethod.class};<a name="line.44"></a>
+<span class="sourceLineNo">045</span>    private String uri = DEFAULT_URI;<a name="line.45"></a>
+<span class="sourceLineNo">046</span><a name="line.46"></a>
+<span class="sourceLineNo">047</span>    public SendDtmfMethod(HttpWrapper httpWrapper) {<a name="line.47"></a>
+<span class="sourceLineNo">048</span>        super(httpWrapper);<a name="line.48"></a>
+<span class="sourceLineNo">049</span>    }<a name="line.49"></a>
+<span class="sourceLineNo">050</span><a name="line.50"></a>
+<span class="sourceLineNo">051</span>    @Override<a name="line.51"></a>
+<span class="sourceLineNo">052</span>    protected Class[] getAcceptableAuthMethods() {<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        return ALLOWED_AUTH_METHODS;<a name="line.53"></a>
+<span class="sourceLineNo">054</span>    }<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>    @Override<a name="line.56"></a>
+<span class="sourceLineNo">057</span>    public RequestBuilder makeRequest(DtmfRequest request) throws NexmoClientException, UnsupportedEncodingException {<a name="line.57"></a>
+<span class="sourceLineNo">058</span>        String uri = this.uri + request.getUuid() + "/dtmf";<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        return RequestBuilder.put(uri)<a name="line.59"></a>
+<span class="sourceLineNo">060</span>                .setHeader("Content-Type", "application/json")<a name="line.60"></a>
+<span class="sourceLineNo">061</span>                .setEntity(new StringEntity(request.toJson()));<a name="line.61"></a>
+<span class="sourceLineNo">062</span>    }<a name="line.62"></a>
+<span class="sourceLineNo">063</span><a name="line.63"></a>
+<span class="sourceLineNo">064</span>    @Override<a name="line.64"></a>
+<span class="sourceLineNo">065</span>    public DtmfResponse parseResponse(HttpResponse response) throws IOException {<a name="line.65"></a>
+<span class="sourceLineNo">066</span>        String json = new BasicResponseHandler().handleResponse(response);<a name="line.66"></a>
 <span class="sourceLineNo">067</span>        return DtmfResponse.fromJson(json);<a name="line.67"></a>
 <span class="sourceLineNo">068</span>    }<a name="line.68"></a>
 <span class="sourceLineNo">069</span><a name="line.69"></a>

@@ -77,21 +77,35 @@
 <span class="sourceLineNo">069</span>        return this.standard.execute(new StandardInsightRequest(number));<a name="line.69"></a>
 <span class="sourceLineNo">070</span>    }<a name="line.70"></a>
 <span class="sourceLineNo">071</span><a name="line.71"></a>
-<span class="sourceLineNo">072</span>    public StandardInsightResponse getStandardNumberInsight(String number, String country) throws IOException,<a name="line.72"></a>
-<span class="sourceLineNo">073</span>                                                                                                  NexmoClientException {<a name="line.73"></a>
+<span class="sourceLineNo">072</span>    public StandardInsightResponse getStandardNumberInsight(<a name="line.72"></a>
+<span class="sourceLineNo">073</span>            String number, String country) throws IOException, NexmoClientException {<a name="line.73"></a>
 <span class="sourceLineNo">074</span>        return this.standard.execute(new StandardInsightRequest(number, country));<a name="line.74"></a>
 <span class="sourceLineNo">075</span>    }<a name="line.75"></a>
 <span class="sourceLineNo">076</span><a name="line.76"></a>
-<span class="sourceLineNo">077</span>    public AdvancedInsightResponse getAdvancedNumberInsight(String number) throws IOException, NexmoClientException {<a name="line.77"></a>
-<span class="sourceLineNo">078</span>        return this.advanced.execute(new AdvancedInsightRequest(number));<a name="line.78"></a>
-<span class="sourceLineNo">079</span>    }<a name="line.79"></a>
-<span class="sourceLineNo">080</span><a name="line.80"></a>
-<span class="sourceLineNo">081</span>    public AdvancedInsightResponse getAdvancedNumberInsight(String number, String country, String ipAddress) throws<a name="line.81"></a>
-<span class="sourceLineNo">082</span>                                                                                                             IOException,<a name="line.82"></a>
-<span class="sourceLineNo">083</span>                                                                                                             NexmoClientException {<a name="line.83"></a>
-<span class="sourceLineNo">084</span>        return this.advanced.execute(new AdvancedInsightRequest(number, country, ipAddress));<a name="line.84"></a>
-<span class="sourceLineNo">085</span>    }<a name="line.85"></a>
-<span class="sourceLineNo">086</span>}<a name="line.86"></a>
+<span class="sourceLineNo">077</span>    public StandardInsightResponse getStandardNumberInsight(<a name="line.77"></a>
+<span class="sourceLineNo">078</span>            String number, String country, boolean cnam) throws IOException, NexmoClientException {<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        return this.standard.execute(new StandardInsightRequest(number, country, cnam));<a name="line.79"></a>
+<span class="sourceLineNo">080</span>    }<a name="line.80"></a>
+<span class="sourceLineNo">081</span><a name="line.81"></a>
+<span class="sourceLineNo">082</span>    public AdvancedInsightResponse getAdvancedNumberInsight(String number) throws IOException, NexmoClientException {<a name="line.82"></a>
+<span class="sourceLineNo">083</span>        return this.advanced.execute(new AdvancedInsightRequest(number));<a name="line.83"></a>
+<span class="sourceLineNo">084</span>    }<a name="line.84"></a>
+<span class="sourceLineNo">085</span><a name="line.85"></a>
+<span class="sourceLineNo">086</span>    public AdvancedInsightResponse getAdvancedNumberInsight(<a name="line.86"></a>
+<span class="sourceLineNo">087</span>            String number, String country) throws IOException, NexmoClientException {<a name="line.87"></a>
+<span class="sourceLineNo">088</span>        return this.advanced.execute(new AdvancedInsightRequest(number, country));<a name="line.88"></a>
+<span class="sourceLineNo">089</span>    }<a name="line.89"></a>
+<span class="sourceLineNo">090</span><a name="line.90"></a>
+<span class="sourceLineNo">091</span>    public AdvancedInsightResponse getAdvancedNumberInsight(<a name="line.91"></a>
+<span class="sourceLineNo">092</span>            String number, String country, String ipAddress) throws IOException, NexmoClientException {<a name="line.92"></a>
+<span class="sourceLineNo">093</span>        return this.advanced.execute(new AdvancedInsightRequest(number, country, ipAddress));<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    }<a name="line.94"></a>
+<span class="sourceLineNo">095</span><a name="line.95"></a>
+<span class="sourceLineNo">096</span>    public AdvancedInsightResponse getAdvancedNumberInsight(<a name="line.96"></a>
+<span class="sourceLineNo">097</span>            String number, String country, String ipAddress, boolean cnam) throws IOException, NexmoClientException {<a name="line.97"></a>
+<span class="sourceLineNo">098</span>        return this.advanced.execute(new AdvancedInsightRequest(number, country, ipAddress, cnam));<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    }<a name="line.99"></a>
+<span class="sourceLineNo">100</span>}<a name="line.100"></a>
 
 
 

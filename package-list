@@ -1,10 +1,14 @@
 com.nexmo.client
+com.nexmo.client.account
+com.nexmo.client.applications
+com.nexmo.client.applications.endpoints
 com.nexmo.client.auth
 com.nexmo.client.insight
 com.nexmo.client.insight.advanced
 com.nexmo.client.insight.basic
 com.nexmo.client.insight.standard
 com.nexmo.client.legacyutils
+com.nexmo.client.numbers
 com.nexmo.client.sms
 com.nexmo.client.sms.callback
 com.nexmo.client.sms.callback.messages

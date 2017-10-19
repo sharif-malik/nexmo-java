@@ -96,22 +96,18 @@
 <span class="sourceLineNo">088</span>        return this.readCall.execute(uuid);<a name="line.88"></a>
 <span class="sourceLineNo">089</span>    }<a name="line.89"></a>
 <span class="sourceLineNo">090</span><a name="line.90"></a>
-<span class="sourceLineNo">091</span><a name="line.91"></a>
-<span class="sourceLineNo">092</span>    /**<a name="line.92"></a>
-<span class="sourceLineNo">093</span>     * Modify an ongoing call.<a name="line.93"></a>
-<span class="sourceLineNo">094</span>     * &lt;p&gt;<a name="line.94"></a>
-<span class="sourceLineNo">095</span>     * Currently this method only supports the "hangup" action.<a name="line.95"></a>
-<span class="sourceLineNo">096</span>     *<a name="line.96"></a>
-<span class="sourceLineNo">097</span>     * @param uuid   The uuid of the CallInfo object to be modified<a name="line.97"></a>
-<span class="sourceLineNo">098</span>     * @param action The word "hangup"<a name="line.98"></a>
-<span class="sourceLineNo">099</span>     * @return A ModifyCallResponse object describing the state of the call that was modified<a name="line.99"></a>
-<span class="sourceLineNo">100</span>     * @throws IOException          if an error occurs communicating with the Nexmo API<a name="line.100"></a>
-<span class="sourceLineNo">101</span>     * @throws NexmoClientException if an error occurs constructing the Nexmo API request or response<a name="line.101"></a>
-<span class="sourceLineNo">102</span>     */<a name="line.102"></a>
-<span class="sourceLineNo">103</span>    public ModifyCallResponse put(String uuid, String action) throws IOException, NexmoClientException {<a name="line.103"></a>
-<span class="sourceLineNo">104</span>        return this.modifyCall.execute(new CallModifier(uuid, action));<a name="line.104"></a>
-<span class="sourceLineNo">105</span>    }<a name="line.105"></a>
-<span class="sourceLineNo">106</span>}<a name="line.106"></a>
+<span class="sourceLineNo">091</span>    /**<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     * Modify an ongoing call.<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     *<a name="line.93"></a>
+<span class="sourceLineNo">094</span>     * @param modifier A CallModifier describing the modification to make to the call.<a name="line.94"></a>
+<span class="sourceLineNo">095</span>     * @return A ModifyCallResponse object describing the state of the call that was modified<a name="line.95"></a>
+<span class="sourceLineNo">096</span>     * @throws IOException          if an error occurs communicating with the Nexmo API<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * @throws NexmoClientException if an error occurs constructing the Nexmo API request or response<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     */<a name="line.98"></a>
+<span class="sourceLineNo">099</span>    public ModifyCallResponse put(CallModifier modifier) throws IOException, NexmoClientException {<a name="line.99"></a>
+<span class="sourceLineNo">100</span>        return this.modifyCall.execute(modifier);<a name="line.100"></a>
+<span class="sourceLineNo">101</span>    }<a name="line.101"></a>
+<span class="sourceLineNo">102</span>}<a name="line.102"></a>
 
 
 
