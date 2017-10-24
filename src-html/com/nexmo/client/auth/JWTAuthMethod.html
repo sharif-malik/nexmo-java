@@ -81,7 +81,7 @@
 <span class="sourceLineNo">073</span>        this(applicationId, Files.readAllBytes(path));<a name="line.73"></a>
 <span class="sourceLineNo">074</span>    }<a name="line.74"></a>
 <span class="sourceLineNo">075</span><a name="line.75"></a>
-<span class="sourceLineNo">076</span>    protected static String constructJTI() {<a name="line.76"></a>
+<span class="sourceLineNo">076</span>    public static String constructJTI() {<a name="line.76"></a>
 <span class="sourceLineNo">077</span>        return UUID.randomUUID().toString();<a name="line.77"></a>
 <span class="sourceLineNo">078</span>    }<a name="line.78"></a>
 <span class="sourceLineNo">079</span><a name="line.79"></a>
@@ -110,7 +110,7 @@
 <span class="sourceLineNo">102</span>        return request;<a name="line.102"></a>
 <span class="sourceLineNo">103</span>    }<a name="line.103"></a>
 <span class="sourceLineNo">104</span><a name="line.104"></a>
-<span class="sourceLineNo">105</span>    protected String constructToken(long iat, String jti) {<a name="line.105"></a>
+<span class="sourceLineNo">105</span>    public String constructToken(long iat, String jti) {<a name="line.105"></a>
 <span class="sourceLineNo">106</span>        Map&lt;String, Object&gt; claims = new HashMap&lt;&gt;();<a name="line.106"></a>
 <span class="sourceLineNo">107</span>        claims.put("iat", iat);<a name="line.107"></a>
 <span class="sourceLineNo">108</span>        claims.put("application_id", this.applicationId);<a name="line.108"></a>
